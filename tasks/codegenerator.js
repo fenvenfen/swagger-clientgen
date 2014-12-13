@@ -43,7 +43,37 @@ CodeGenerator.prototype.render = function(templateFile, data) {
   return Mustache.render(this.grunt.file.read(templatePath), data);
 };
 
-CodeGenerator.prototype.generateMethod = function(methodConfig) {
+CodeGenerator.prototype.findReturnType = function() {
+  if (this.language === 'TypeScript') {
+    //Return any for now. Need to parse the operations response objects and generate interfaces from them
+    return 'any';
+  }
+};
+
+CodeGenerator.prototype.generateMethod = function(path, pathConfig, operation, operationConfig) {
+  var methodConfig = {
+    name: operationConfig.operationId,
+    returnType: this.findReturnType(),
+    httpMethod: operation.toUpperCase(),
+    path: path
+  };
+
+  if (operationConfig.parameters) {
+    methodConfig.parametersAvailable = true;
+    methodConfig.params = [];
+
+    for (var paramIndex in operationConfig.parameters) {
+      var parameter = operationConfig.parameters[paramIndex];
+
+      methodConfig.params.push({
+        name: parameter.name,
+        type: 'any',
+        in : parameter.in,
+        commaNeeded: paramIndex < operationConfig.parameters.length - 1
+      });
+    }
+  }
+
   return this.render('method.mst', {
     methodConfig: methodConfig
   });

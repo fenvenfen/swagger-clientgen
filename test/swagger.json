@@ -8,6 +8,13 @@
     "/something": {
       "get": {
         "operationId": "getAllThings"
+      },
+      "post": {
+        "operationId": "createThing",
+        "parameters": [{
+          "name": "thing",
+          "in": "body"
+        }]
       }
     }
   }

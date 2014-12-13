@@ -1,3 +1,11 @@
-public {{{methodConfig.name}}}(): {{{methodConfig.returnType}}} {
-
+public {{{methodConfig.name}}}({{#methodConfig.params}}{{{name}}}: {{{type}}}{{#commaNeeded}}, {{/commaNeeded}}{{/methodConfig.params}}): ng.IHttpPromise < {{{methodConfig.returnType}}} > {
+  return this.$http(this.createRequestConfig('{{{methodConfig.path}}}', '{{{methodConfig.httpMethod}}}'{{#methodConfig.parametersAvailable}}, {
+    {{#methodConfig.params}}
+        '{{{name}}}': {
+            value: {{{name}}},
+            type: '{{{in}}}'
+        }{{#commaNeeded}}, {{/commaNeeded}}
+    {{/methodConfig.params}}
+  }
+  {{/methodConfig.parametersAvailable}}));
 }

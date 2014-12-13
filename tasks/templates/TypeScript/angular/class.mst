@@ -6,6 +6,25 @@ export class {{{apiConfig.className}}} {
   constructor($http: ng.IHttpService){
     this.$http = $http;
   }
+
+  private createRequestConfig(path: string, method: string, parameters: any): ng.IRequestConfig {
+    var config = {
+      method: method,
+      url: path
+    };
+
+    if (parameters) {
+      for (var paramName in parameters) {
+        var parameter = parameters[paramName];
+
+        if (parameter.type === 'body') {
+          config.data = parameter.value;
+        }
+      }
+    }
+
+    return config;
+  }
   {{#methodContent}}
 
     {{{methodContent}}}

@@ -72,7 +72,27 @@ module.exports = function(grunt) {
 
       var codeGenerator = codeGen(grunt, options.language, options.framework);
 
-      var generatedClass = codeGenerator.generateClass(apiConfig, api);
+      var generatedMethods;
+
+      if (api.paths) {
+        generatedMethods = '';
+
+        for (var path in api.paths) {
+          var pathConfig = api.paths[path];
+
+          for (var operation in pathConfig) {
+            var operationConfig = pathConfig[operation];
+
+            if (generatedMethods.length >= 1) {
+              generatedMethods += '\n\n';
+            }
+
+            generatedMethods += codeGenerator.generateMethod(path, pathConfig, operation, operationConfig);
+          }
+        }
+      }
+
+      var generatedClass = codeGenerator.generateClass(apiConfig, api, generatedMethods);
       var generatedModule = codeGenerator.generateModule(apiConfig, generatedClass);
 
       grunt.file.write(apiConfig.target, beautify(generatedModule, {

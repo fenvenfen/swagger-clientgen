@@ -9,8 +9,36 @@ module Swagger {
       this.$http = $http;
     }
 
-    public getAllThings(): ng.IHttpPromise < any > {
+    private createRequestConfig(path: string, method: string, parameters: any): ng.IRequestConfig {
+      var config = {
+        method: method,
+        url: path
+      };
 
+      if (parameters) {
+        for (var paramName in parameters) {
+          var parameter = parameters[paramName];
+
+          if (parameter.type === 'body') {
+            config.data = parameter.value;
+          }
+        }
+      }
+
+      return config;
+    }
+
+    public getAllThings(): ng.IHttpPromise < any > {
+      return this.$http(this.createRequestConfig('/something', 'GET'));
+    }
+
+    public createThing(thing: any): ng.IHttpPromise < any > {
+      return this.$http(this.createRequestConfig('/something', 'POST', {
+        'thing': {
+          value: thing,
+          type: 'body'
+        }
+      }));
     }
   }
 
