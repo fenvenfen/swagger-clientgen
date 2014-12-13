@@ -1,0 +1,3 @@
+public {{{methodConfig.name}}}(): {{{methodConfig.returnType}}} {
+
+}

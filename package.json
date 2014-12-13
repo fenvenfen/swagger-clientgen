@@ -1,0 +1,37 @@
+{
+  "name": "swagger-clientgen",
+  "version": "0.0.1",
+  "description": "Generate client side code out of a swagger api documentation",
+  "homepage": "https://github.com/furti/swagger-clientgen.git",
+  "repository": "https://github.com/furti/swagger-clientgen.git",
+  "author": {
+    "name": "furti",
+    "email": "",
+    "url": ""
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "main": "Gruntfile.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "license": "Apache 2",
+  "dependencies": {
+    "js-beautify": "~1.5.1",
+    "jshint": "~2.5.1",
+    "mustache": "~0.8.2"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-nodeunit": "~0.3.0",
+    "grunt-lineending": "^0.2.4",
+    "jshint-stylish": "~0.1.5",
+    "load-grunt-tasks": "~0.3.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
+}

@@ -1,0 +1,3 @@
+module {{{apiConfig.module}}} {
+  {{{content}}}
+}

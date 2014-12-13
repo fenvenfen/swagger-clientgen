@@ -1,0 +1,13 @@
+module {{{apiConfig.module}}} {
+{{#classContent}}
+
+  {{{classContent}}}
+{{/classContent}}
+
+  angular.module('{{{apiConfig.angularModuleName}}}', [])
+    .factory('{{{apiConfig.angularServiceName}}}', ['$http',
+      function($http: ng.IHttpService) {
+        return new SwaggerClient($http);
+      }
+    ]);
+}

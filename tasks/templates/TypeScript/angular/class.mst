@@ -1,0 +1,13 @@
+export class {{{apiConfig.className}}} {
+  public title = '{{{api.info.title}}}';
+  public version = '{{{api.info.version}}}';
+  private $http: ng.IHttpService;
+
+  constructor($http: ng.IHttpService){
+    this.$http = $http;
+  }
+  {{#methodContent}}
+
+    {{{methodContent}}}
+  {{/methodContent}}
+}
