@@ -77,7 +77,7 @@ CodeGenerator.prototype.generateMethod = function(path, pathConfig, operation, o
   return this.render('method.mst', {
     methodConfig: methodConfig
   });
-}
+};
 
 CodeGenerator.prototype.generateClass = function(apiConfig, api, methodContent) {
   return this.render('class.mst', {

@@ -1,3 +1,4 @@
+/// <reference path="{{{apiConfig.typescriptTypesLocation}}}/angular/angular.d.ts" />
 module {{{apiConfig.module}}} {
 {{#classContent}}
 

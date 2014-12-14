@@ -35,11 +35,46 @@ module.exports = function(grunt) {
     lineending: { // Task
       dist: { // Target
         options: { // Target options
-          eol: 'lf',
+          eol: 'crlf',
           overwrite: true
         },
         files: { // Files to process
           '': ['test/expected/*']
+        }
+      }
+    },
+
+    karma: {
+      options: {
+        frameworks: ['jasmine'],
+        plugins: [
+          'karma-jasmine',
+          'karma-phantomjs-launcher'
+        ],
+        browsers: ['PhantomJS']
+      },
+      typescript_angular: {
+        options: {
+          files: [
+            'test/lib/angular.js',
+            'test/lib/angular-mocks.js',
+            'tmp/swagger_typescript_angular.js',
+            'test/jasmine/swagger_typescript_angular.spec.js'
+          ]
+        },
+        singleRun: true,
+        autoWatch: false,
+      }
+    },
+
+    typescript: {
+      base: {
+        src: ['tmp/swagger_typescript_angular.ts'],
+        dest: 'tmp/swagger_typescript_angular.js',
+        options: {
+          module: 'commonjs',
+          target: 'es5',
+          sourceMap: false
         }
       }
     },
@@ -53,6 +88,7 @@ module.exports = function(grunt) {
             target: 'tmp/swagger_typescript_angular.ts',
             module: 'Swagger',
             className: 'SwaggerClient',
+            typescriptTypesLocation: '../test/types',
             angularModuleName: 'swaggerclient',
             angularServiceName: 'client'
           }]
@@ -72,7 +108,7 @@ module.exports = function(grunt) {
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'lineending', 'swagger_clientgen', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'lineending', 'swagger_clientgen', 'typescript', 'nodeunit', 'karma']);
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);

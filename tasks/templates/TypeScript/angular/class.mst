@@ -7,8 +7,8 @@ export class {{{apiConfig.className}}} {
     this.$http = $http;
   }
 
-  private createRequestConfig(path: string, method: string, parameters: any): ng.IRequestConfig {
-    var config = {
+  private createRequestConfig(path: string, method: string, parameters?: any): ng.IRequestConfig {
+    var config: ng.IRequestConfig = {
       method: method,
       url: path
     };

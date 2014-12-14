@@ -9,7 +9,7 @@
 'use strict';
 
 var codeGen = require('./codegenerator');
-var beautify = require('js-beautify').js_beautify;
+var formatter = require("typescript-formatter");
 
 module.exports = function(grunt) {
   function checkApi(api) {
@@ -18,6 +18,10 @@ module.exports = function(grunt) {
     }
 
     return assert.exists(api.src, 'api.src msut be a valid file or URL');
+  }
+
+  function getDirectory(file) {
+    return file.substring(0, file.lastIndexOf('/'));
   }
 
   function Assert() {
@@ -84,7 +88,7 @@ module.exports = function(grunt) {
             var operationConfig = pathConfig[operation];
 
             if (generatedMethods.length >= 1) {
-              generatedMethods += '\n\n';
+              generatedMethods += '\r\n\r\n';
             }
 
             generatedMethods += codeGenerator.generateMethod(path, pathConfig, operation, operationConfig);
@@ -95,11 +99,21 @@ module.exports = function(grunt) {
       var generatedClass = codeGenerator.generateClass(apiConfig, api, generatedMethods);
       var generatedModule = codeGenerator.generateModule(apiConfig, generatedClass);
 
-      grunt.file.write(apiConfig.target, beautify(generatedModule, {
-        indent_size: 2,
-        max_preserve_newlines: 2,
-        end_with_newline: true
-      }));
+      grunt.file.write(apiConfig.target, generatedModule);
+
+      /**
+       * The formatter needs a tsfmt.json for configuration that is located next to the ts file.
+       * So we crate one and delete it after formatting
+       */
+      var tsfmt = getDirectory(apiConfig.target) + '/tsfmt.json';
+      grunt.file.write(tsfmt, grunt.file.read(__dirname + '/tsfmt.json'));
+
+      formatter.processFiles([apiConfig.target], {
+        replace: true,
+        tsfmt: true
+      });
+
+      grunt.file.delete(tsfmt);
     }
   });
 

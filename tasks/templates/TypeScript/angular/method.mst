@@ -6,6 +6,5 @@ public {{{methodConfig.name}}}({{#methodConfig.params}}{{{name}}}: {{{type}}}{{#
             type: '{{{in}}}'
         }{{#commaNeeded}}, {{/commaNeeded}}
     {{/methodConfig.params}}
-  }
-  {{/methodConfig.parametersAvailable}}));
+  }{{/methodConfig.parametersAvailable}}));
 }
