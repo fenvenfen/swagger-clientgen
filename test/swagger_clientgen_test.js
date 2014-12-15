@@ -30,7 +30,7 @@ exports.swagger_clientgen = {
   typescript_angular: function(test) {
     test.expect(1);
 
-    var actual = grunt.file.read('tmp/swagger_typescript_angular.ts');
+    var actual = grunt.file.read('tmp/actual/swagger_typescript_angular.ts');
     var expected = grunt.file.read('test/expected/swagger_typescript_angular.ts');
     test.equal(actual, expected, 'Content of files not equals');
 

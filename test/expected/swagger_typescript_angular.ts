@@ -1,4 +1,4 @@
-/// <reference path="../test/types/angular/angular.d.ts" />
+/// <reference path="../../test/types/angular/angular.d.ts" />
 module Swagger {
 
     export class SwaggerClient {

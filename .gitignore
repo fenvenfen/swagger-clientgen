@@ -8,3 +8,7 @@ swagger-clientgen.csproj.user
 web.Debug.config
 web.Release.config
 web.config
+tasks/codegenerator.js.map
+tasks/swagger_clientgen.js.map
+test/expected/*.js
+test/expected/*.js.map

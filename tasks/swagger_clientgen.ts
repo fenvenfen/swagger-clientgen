@@ -1,12 +1,14 @@
 ///<reference path="../test/types/node/node.d.ts" />
 /*
-* swagger-clientgen
-* https://github.com/furti/swagger-clientgen.git
-*
-* Copyright (c) 2014 furti
-* Licensed under the Apache License 2.0 license.
-*/
+ * swagger-clientgen
+ * https://github.com/furti/swagger-clientgen.git
+ *
+ * Copyright (c) 2014 furti
+ * Licensed under the Apache License 2.0 license.
+ */
+
 'use strict';
+
 var codeGen = require('./codegenerator');
 var formatter = require("typescript-formatter");
 
@@ -24,6 +26,7 @@ module.exports = function (grunt) {
     }
 
     function Assert() {
+
     }
 
     Assert.prototype.defined = function (value, error) {
@@ -46,13 +49,16 @@ module.exports = function (grunt) {
 
     var assert = new Assert();
 
+
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
+
     grunt.registerMultiTask('swagger_clientgen', 'Generate client side code out of a swagger api documentation', function () {
+
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             language: 'TypeScript',
-            framework: 'angular'
+            framework: 'angular' //none, angular
         });
 
         if (!(options.apis instanceof Array)) {
@@ -97,9 +103,9 @@ module.exports = function (grunt) {
             grunt.file.write(apiConfig.target, generatedModule);
 
             /**
-            * The formatter needs a tsfmt.json for configuration that is located next to the ts file.
-            * So we crate one and delete it after formatting
-            */
+             * The formatter needs a tsfmt.json for configuration that is located next to the ts file.
+             * So we crate one and delete it after formatting
+             */
             var tsfmt = getDirectory(apiConfig.target) + '/tsfmt.json';
             grunt.file.write(tsfmt, grunt.file.read(__dirname + '/tsfmt.json'));
 
@@ -111,5 +117,5 @@ module.exports = function (grunt) {
             grunt.file.delete(tsfmt);
         }
     });
+
 };
-//# sourceMappingURL=swagger_clientgen.js.map
