@@ -1,103 +1,130 @@
 ///<reference path="../test/types/node/node.d.ts" />
+///<reference path="../test/types/mustache/mustache.d.ts" />
+///<reference path="../test/types/gruntjs/gruntjs.d.ts" />
 'use strict';
 
-var Mustache = require('mustache');
+var Mustache: MustacheStatic = require('mustache');
 
-function CodeGenerator(grunt, language, framework) {
-  this.language = language;
-  this.framework = framework;
-  this.grunt = grunt;
+export interface CodeGenerator {
+    generateMethod(path: string, pathConfig: any, operation: string, operationConfig: any): string;
+    generateClass(apiConfig: any, api: any, methodContent: string): string;
+    generateModule(apiConfig: any, classContent: string): string;
 }
 
-CodeGenerator.prototype.findTemplateFile = function(templateFile) {
-  var templatePath;
+interface MethodConfig {
+    name: string;
+    returnType: string;
+    httpMethod: string;
+    path: string;
+    parametersAvailable?: boolean;
+    params?: Array<MethodParameter>;
+}
 
-  //If a framework is set try to load the file for the language and framework
-  if (this.framework !== 'none') {
-    templatePath = __dirname + '/templates/' + this.language + '/' + this.framework + '/' + templateFile;
+interface MethodParameter {
+    name: string;
+    type: string;
+    in: string;
+    commaNeeded: boolean;
+}
 
-    if (this.grunt.file.exists(templatePath)) {
-      return templatePath;
+class DefaultCodeGenerator implements CodeGenerator {
+    private language: string;
+    private framework: string;
+    private grunt: IGrunt;
+
+    constructor(grunt: IGrunt, language: string, framework: string) {
+        this.language = language;
+        this.framework = framework;
+        this.grunt = grunt;
     }
-  }
 
-  //else try to load the file for the language only
-  templatePath = __dirname + '/templates/' + this.language + '/' + templateFile;
+    private findTemplateFile(templateFile: string): string {
+        var templatePath: string;
 
-  if (this.grunt.file.exists(templatePath)) {
-    return templatePath;
-  }
+        //If a framework is set try to load the file for the language and framework
+        if (this.framework !== 'none') {
+            templatePath = __dirname + '/templates/' + this.language + '/' + this.framework + '/' + templateFile;
 
-  //If no template file is found log it and return nothing
-  this.grunt.log.error('Template file ' + templatePath + ' not found');
+            if (this.grunt.file.exists(templatePath)) {
+                return templatePath;
+            }
+        }
 
-  return;
-};
+        //else try to load the file for the language only
+        templatePath = __dirname + '/templates/' + this.language + '/' + templateFile;
 
-CodeGenerator.prototype.render = function(templateFile, data) {
-  var templatePath = this.findTemplateFile(templateFile);
+        if (this.grunt.file.exists(templatePath)) {
+            return templatePath;
+        }
 
-  if (!templatePath) {
-    return '';
-  }
+        //If no template file is found log it and return nothing
+        this.grunt.log.error('Template file ' + templatePath + ' not found');
 
-  return Mustache.render(this.grunt.file.read(templatePath), data);
-};
-
-CodeGenerator.prototype.findReturnType = function() {
-  if (this.language === 'TypeScript') {
-    //Return any for now. Need to parse the operations response objects and generate interfaces from them
-    return 'any';
-  }
-};
-
-CodeGenerator.prototype.generateMethod = function(path, pathConfig, operation, operationConfig) {
-  var methodConfig = {
-    name: operationConfig.operationId,
-    returnType: this.findReturnType(),
-    httpMethod: operation.toUpperCase(),
-    path: path
-  };
-
-  if (operationConfig.parameters) {
-    methodConfig.parametersAvailable = true;
-    methodConfig.params = [];
-
-    for (var paramIndex in operationConfig.parameters) {
-      var parameter = operationConfig.parameters[paramIndex];
-
-      methodConfig.params.push({
-        name: parameter.name,
-        type: 'any',
-        in : parameter.in,
-        commaNeeded: paramIndex < operationConfig.parameters.length - 1
-      });
+        return;
     }
-  }
 
-  return this.render('method.mst', {
-    methodConfig: methodConfig
-  });
-};
+    render(templateFile: string, data: any): string {
+        var templatePath = this.findTemplateFile(templateFile);
 
-CodeGenerator.prototype.generateClass = function(apiConfig, api, methodContent) {
-  return this.render('class.mst', {
-    apiConfig: apiConfig,
-    api: api,
-    methodContent: methodContent
-  });
-};
+        if (!templatePath) {
+            return '';
+        }
 
-/**
- *
- */
-CodeGenerator.prototype.generateModule = function(apiConfig, classContent) {
-  return this.render('module.mst', {
-    apiConfig: apiConfig,
-    classContent: classContent
-  });
-};
+        return Mustache.render(this.grunt.file.read(templatePath), data);
+    }
 
-module.exports = function(grunt, language, framework) {
-  return new CodeGenerator(grunt, language, framework);
+    findReturnType(): string {
+        if (this.language === 'TypeScript') {
+            //Return any for now. Need to parse the operations response objects and generate interfaces from them
+            return 'any';
+        }
+    }
+
+    generateMethod(path: string, pathConfig: any, operation: string, operationConfig: any) {
+        var methodConfig: MethodConfig = {
+            name: operationConfig.operationId,
+            returnType: this.findReturnType(),
+            httpMethod: operation.toUpperCase(),
+            path: path
+        };
+
+        if (operationConfig.parameters) {
+            methodConfig.parametersAvailable = true;
+            methodConfig.params = [];
+
+            for (var paramIndex in operationConfig.parameters) {
+                var parameter = operationConfig.parameters[paramIndex];
+
+                methodConfig.params.push({
+                    name: parameter.name,
+                    type: 'any',
+                    in: parameter.in,
+                    commaNeeded: paramIndex < operationConfig.parameters.length - 1
+                });
+            }
+        }
+
+        return this.render('method.mst', {
+            methodConfig: methodConfig
+        });
+    }
+
+    generateClass(apiConfig: any, api: any, methodContent: string) {
+        return this.render('class.mst', {
+            apiConfig: apiConfig,
+            api: api,
+            methodContent: methodContent
+        });
+    }
+
+    generateModule(apiConfig: any, classContent: string) {
+        return this.render('module.mst', {
+            apiConfig: apiConfig,
+            classContent: classContent
+        });
+    }
+}
+
+export function create(grunt: IGrunt, language: string, framework: string): CodeGenerator {
+    return new DefaultCodeGenerator(grunt, language, framework);
 };

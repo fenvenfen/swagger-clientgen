@@ -1,4 +1,6 @@
 ///<reference path="../test/types/node/node.d.ts" />
+///<reference path="../test/types/swagger/swagger.d.ts" />
+///<reference path="./codegenerator.ts" />
 /*
  * swagger-clientgen
  * https://github.com/furti/swagger-clientgen.git
@@ -9,11 +11,37 @@
 
 'use strict';
 
-var codeGen = require('./codegenerator');
+import codeGen = require('./codegenerator');
 var formatter = require("typescript-formatter");
 
-module.exports = function (grunt) {
-    function checkApi(api) {
+class Assert {
+    private grunt: IGrunt;
+
+    constructor(grunt: IGrunt) {
+        this.grunt = grunt;
+    }
+
+    defined(value: any, error: string) {
+        if (typeof value === 'undefined') {
+            this.grunt.log.error(error);
+            return false;
+        }
+
+        return true;
+    }
+
+    exists(file: string, error: string) {
+        if (!this.grunt.file.exists(file)) {
+            this.grunt.log.error(error);
+            return false;
+        }
+
+        return true;
+    }
+}
+
+module.exports = function (grunt: IGrunt) {
+    function checkApi(api: any) {
         if (!assert.defined(api.src, 'api.src must be a valid file or URL') || !assert.defined(api.target, 'api.target must be a valid file')) {
             return false;
         }
@@ -21,33 +49,11 @@ module.exports = function (grunt) {
         return assert.exists(api.src, 'api.src msut be a valid file or URL');
     }
 
-    function getDirectory(file) {
+    function getDirectory(file: string) {
         return file.substring(0, file.lastIndexOf('/'));
     }
 
-    function Assert() {
-
-    }
-
-    Assert.prototype.defined = function (value, error) {
-        if (typeof value === 'undefined') {
-            grunt.log.error(error);
-            return false;
-        }
-
-        return true;
-    };
-
-    Assert.prototype.exists = function (file, error) {
-        if (!grunt.file.exists(file)) {
-            grunt.log.error(error);
-            return false;
-        }
-
-        return true;
-    };
-
-    var assert = new Assert();
+    var assert = new Assert(grunt);
 
 
     // Please see the Grunt documentation for more information regarding task
@@ -73,11 +79,11 @@ module.exports = function (grunt) {
                 return false;
             }
 
-            var api = grunt.file.readJSON(apiConfig.src);
+            var api: SwaggerObject = grunt.file.readJSON(apiConfig.src);
+            
+            var codeGenerator = codeGen.create(grunt, options.language, options.framework);
 
-            var codeGenerator = codeGen(grunt, options.language, options.framework);
-
-            var generatedMethods;
+            var generatedMethods: string;
 
             if (api.paths) {
                 generatedMethods = '';

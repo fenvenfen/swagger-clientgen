@@ -1,4 +1,6 @@
 ///<reference path="../test/types/node/node.d.ts" />
+///<reference path="../test/types/swagger/swagger.d.ts" />
+///<reference path="./codegenerator.ts" />
 /*
 * swagger-clientgen
 * https://github.com/furti/swagger-clientgen.git
@@ -9,6 +11,30 @@
 'use strict';
 var codeGen = require('./codegenerator');
 var formatter = require("typescript-formatter");
+
+var Assert = (function () {
+    function Assert(grunt) {
+        this.grunt = grunt;
+    }
+    Assert.prototype.defined = function (value, error) {
+        if (typeof value === 'undefined') {
+            this.grunt.log.error(error);
+            return false;
+        }
+
+        return true;
+    };
+
+    Assert.prototype.exists = function (file, error) {
+        if (!this.grunt.file.exists(file)) {
+            this.grunt.log.error(error);
+            return false;
+        }
+
+        return true;
+    };
+    return Assert;
+})();
 
 module.exports = function (grunt) {
     function checkApi(api) {
@@ -23,28 +49,7 @@ module.exports = function (grunt) {
         return file.substring(0, file.lastIndexOf('/'));
     }
 
-    function Assert() {
-    }
-
-    Assert.prototype.defined = function (value, error) {
-        if (typeof value === 'undefined') {
-            grunt.log.error(error);
-            return false;
-        }
-
-        return true;
-    };
-
-    Assert.prototype.exists = function (file, error) {
-        if (!grunt.file.exists(file)) {
-            grunt.log.error(error);
-            return false;
-        }
-
-        return true;
-    };
-
-    var assert = new Assert();
+    var assert = new Assert(grunt);
 
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
@@ -69,7 +74,7 @@ module.exports = function (grunt) {
 
             var api = grunt.file.readJSON(apiConfig.src);
 
-            var codeGenerator = codeGen(grunt, options.language, options.framework);
+            var codeGenerator = codeGen.create(grunt, options.language, options.framework);
 
             var generatedMethods;
 
