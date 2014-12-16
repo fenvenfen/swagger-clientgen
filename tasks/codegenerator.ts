@@ -6,8 +6,8 @@
 var Mustache: MustacheStatic = require('mustache');
 
 export interface CodeGenerator {
-    generateMethod(path: string, pathConfig: any, operation: string, operationConfig: any): string;
-    generateClass(apiConfig: any, api: any, methodContent: string): string;
+    generateMethod(path: string, pathConfig: swagger.PathItemObject, operation: string, operationConfig: swagger.OperationObject): string;
+    generateClass(apiConfig: any, api: SwaggerObject, methodContent: string): string;
     generateModule(apiConfig: any, classContent: string): string;
 }
 
@@ -109,7 +109,7 @@ class DefaultCodeGenerator implements CodeGenerator {
         });
     }
 
-    generateClass(apiConfig: any, api: any, methodContent: string) {
+    generateClass(apiConfig: any, api: SwaggerObject, methodContent: string) {
         return this.render('class.mst', {
             apiConfig: apiConfig,
             api: api,

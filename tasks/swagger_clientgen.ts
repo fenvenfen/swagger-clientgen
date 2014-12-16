@@ -53,6 +53,23 @@ module.exports = function (grunt: IGrunt) {
         return file.substring(0, file.lastIndexOf('/'));
     }
 
+    function handleOperation(operationConfig: swagger.OperationObject, operation: string, path: string, pathConfig: swagger.PathItemObject, codeGenerator: codeGen.CodeGenerator, appendNewlines: boolean) {
+        //If the operation is not defined --> nothing to do
+        if (!operationConfig) {
+            return '';
+        }
+
+        var generated = '';
+
+        if (appendNewlines) {
+            generated += '\r\n\r\n';
+        }
+
+        generated += codeGenerator.generateMethod(path, pathConfig, operation, operationConfig);
+
+        return generated;
+    }
+
     var assert = new Assert(grunt);
 
 
@@ -80,26 +97,25 @@ module.exports = function (grunt: IGrunt) {
             }
 
             var api: SwaggerObject = grunt.file.readJSON(apiConfig.src);
-            
+
             var codeGenerator = codeGen.create(grunt, options.language, options.framework);
 
-            var generatedMethods: string;
+            var generatedMethods: string,
+                pathConfig: swagger.PathItemObject;
 
             if (api.paths) {
                 generatedMethods = '';
 
                 for (var path in api.paths) {
-                    var pathConfig = api.paths[path];
+                    pathConfig = api.paths[path];
 
-                    for (var operation in pathConfig) {
-                        var operationConfig = pathConfig[operation];
-
-                        if (generatedMethods.length >= 1) {
-                            generatedMethods += '\r\n\r\n';
-                        }
-
-                        generatedMethods += codeGenerator.generateMethod(path, pathConfig, operation, operationConfig);
-                    }
+                    generatedMethods += handleOperation(pathConfig.get, 'get', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+                    generatedMethods += handleOperation(pathConfig.delete, 'delete', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+                    generatedMethods += handleOperation(pathConfig.head, 'head', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+                    generatedMethods += handleOperation(pathConfig.options, 'options', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+                    generatedMethods += handleOperation(pathConfig.patch, 'patch', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+                    generatedMethods += handleOperation(pathConfig.post, 'post', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+                    generatedMethods += handleOperation(pathConfig.put, 'put', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
                 }
             }
 
