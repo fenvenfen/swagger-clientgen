@@ -17,12 +17,34 @@ module Swagger {
             };
 
             if (parameters) {
+                var query: string;
+
                 for (var paramName in parameters) {
                     var parameter = parameters[paramName];
 
                     if (parameter.type === 'body') {
                         config.data = parameter.value;
                     }
+
+                    if (parameter.type === 'path') {
+                        config.url = config.url.replace('{' + paramName + '}', parameter.value);
+                    }
+
+                    //Add query parameters only if the value is defined
+                    if (parameter.type === 'query' && angular.isDefined(parameter.value)) {
+                        if (angular.isDefined(query)) {
+                            query += '&';
+                        }
+                        else {
+                            query = '?';
+                        }
+
+                        query += paramName + '=' + parameter.value;
+                    }
+                }
+
+                if (angular.isDefined(query)) {
+                    config.url += query;
                 }
             }
 
@@ -38,6 +60,37 @@ module Swagger {
                 'thing': {
                     value: thing,
                     type: 'body'
+                }
+            }));
+        }
+
+        public deleteThing(id: any): ng.IHttpPromise<any> {
+            return this.$http(this.createRequestConfig('/something/{id}', 'DELETE', {
+                'id': {
+                    value: id,
+                    type: 'path'
+                }
+            }));
+        }
+
+        public updateThing(id: any, thing: any): ng.IHttpPromise<any> {
+            return this.$http(this.createRequestConfig('/something/{id}', 'PUT', {
+                'id': {
+                    value: id,
+                    type: 'path'
+                },
+                'thing': {
+                    value: thing,
+                    type: 'body'
+                }
+            }));
+        }
+
+        public searchQuery(q: any): ng.IHttpPromise<any> {
+            return this.$http(this.createRequestConfig('/query', 'GET', {
+                'q': {
+                    value: q,
+                    type: 'query'
                 }
             }));
         }

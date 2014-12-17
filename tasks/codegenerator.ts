@@ -80,7 +80,7 @@ class DefaultCodeGenerator implements CodeGenerator {
         }
     }
 
-    generateMethod(path: string, pathConfig: any, operation: string, operationConfig: any) {
+    generateMethod(path: string, pathConfig: swagger.PathItemObject, operation: string, operationConfig: swagger.OperationObject) {
         var methodConfig: MethodConfig = {
             name: operationConfig.operationId,
             returnType: this.findReturnType(),

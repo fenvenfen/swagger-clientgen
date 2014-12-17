@@ -14,13 +14,35 @@ export class {{{apiConfig.className}}} {
     };
 
     if (parameters) {
+	  var query: string;
+
       for (var paramName in parameters) {
         var parameter = parameters[paramName];
 
         if (parameter.type === 'body') {
-          config.data = parameter.value;
+		  config.data = parameter.value;
+        }
+
+		if (parameter.type === 'path') {
+		  config.url = config.url.replace('{' + paramName + '}', parameter.value);
+        }
+
+		//Add query parameters only if the value is defined
+        if (parameter.type === 'query' && angular.isDefined(parameter.value)) {
+          if (angular.isDefined(query)) {
+            query += '&';
+          }
+          else {
+            query = '?';
+          }
+
+          query += paramName + '=' + parameter.value;
         }
       }
+
+	  if (angular.isDefined(query)) {
+	    config.url += query;
+	  }
     }
 
     return config;
