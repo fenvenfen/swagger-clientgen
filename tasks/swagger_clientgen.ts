@@ -62,7 +62,7 @@ module.exports = function (grunt: IGrunt) {
         var generated = '';
 
         if (appendNewlines) {
-            generated += '\r\n\r\n';
+            generated += '\n';
         }
 
         generated += codeGenerator.generateMethod(path, pathConfig, operation, operationConfig);

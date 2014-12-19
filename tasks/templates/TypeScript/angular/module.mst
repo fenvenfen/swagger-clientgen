@@ -4,7 +4,6 @@ module {{{apiConfig.module}}} {
 
   {{{classContent}}}
 {{/classContent}}
-
   angular.module('{{{apiConfig.angularModuleName}}}', [])
     .factory('{{{apiConfig.angularServiceName}}}', ['$http',
       function($http: ng.IHttpService) {

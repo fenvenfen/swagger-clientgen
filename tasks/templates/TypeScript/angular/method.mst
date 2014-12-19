@@ -3,7 +3,7 @@ public {{{methodConfig.name}}}({{#methodConfig.params}}{{{name}}}: {{{type}}}{{#
     {{#methodConfig.params}}
         '{{{name}}}': {
             value: {{{name}}},
-            type: '{{{in}}}'
+            type: '{{{location}}}'
         }{{#commaNeeded}}, {{/commaNeeded}}
     {{/methodConfig.params}}
   }{{/methodConfig.parametersAvailable}}));

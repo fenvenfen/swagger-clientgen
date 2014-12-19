@@ -35,7 +35,7 @@ module.exports = function (grunt) {
         lineending: { // Task
             dist: { // Target
                 options: { // Target options
-                    eol: 'crlf',
+                    eol: 'lf',
                     overwrite: true
                 },
                 files: { // Files to process
@@ -63,7 +63,7 @@ module.exports = function (grunt) {
                     ]
                 },
                 singleRun: true,
-                autoWatch: false,
+                autoWatch: false
             }
         },
 
