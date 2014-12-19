@@ -31,7 +31,7 @@ module Swagger {
           }
 
           //Add query parameters only if the value is defined
-          if (parameter.type === 'query' && angular.isDefined(parameter.value)) {
+          if (parameter.type === 'query' && angular.isDefined(parameter.value) && parameter.value !== null) {
             if (angular.isDefined(query)) {
               query += '&';
             }
