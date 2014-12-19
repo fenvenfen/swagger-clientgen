@@ -18,6 +18,7 @@ module Swagger {
 
       if (parameters) {
         var query: string;
+        var headers: any;
 
         for (var paramName in parameters) {
           var parameter = parameters[paramName];
@@ -41,10 +42,23 @@ module Swagger {
 
             query += paramName + '=' + parameter.value;
           }
+
+          //Add header parameters only if the value is defined
+          if (parameter.type === 'header' && angular.isDefined(parameter.value) && parameter.value !== null) {
+            if (!angular.isDefined(headers)) {
+              headers = {};
+            }
+
+            headers[paramName] = parameter.value;
+          }
         }
 
         if (angular.isDefined(query)) {
           config.url += query;
+        }
+
+        if (angular.isDefined(headers)) {
+          config.headers = headers;
         }
       }
 
@@ -91,6 +105,15 @@ module Swagger {
         'q': {
           value: q,
           type: 'query'
+        }
+      }));
+    }
+
+    public sendHeader(token: any): ng.IHttpPromise<any> {
+      return this.$http(this.createRequestConfig('/header', 'GET', {
+        'token': {
+          value: token,
+          type: 'header'
         }
       }));
     }

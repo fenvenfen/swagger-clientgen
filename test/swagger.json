@@ -53,6 +53,17 @@
                     }
                 ]
             }
+        },
+        "/header": {
+            "get": {
+                "operationId": "sendHeader",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "header"
+                    }
+                ]
+            }
         }
     }
 }

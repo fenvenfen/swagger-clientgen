@@ -164,4 +164,60 @@ describe('Test the client', function () {
     expect(success).toBe(true);
   });
 
+  it('Test sendHeader with defined parameter', function () {
+    $httpBackend.expectGET('/header', function (headers) {
+      return headers.token === 'abc';
+    }).respond(200, 'found');
+
+    var response = client.sendHeader('abc');
+    expect(response).toBeDefined();
+
+    var success = false;
+
+    response.success(function (data) {
+      success = true;
+      expect(data).toBe('found');
+    });
+
+    $httpBackend.flush();
+    expect(success).toBe(true);
+  });
+
+  it('Test sendHeader with undefined parameter', function () {
+    $httpBackend.expectGET('/header', function (headers) {
+      return angular.isUndefined(headers.token);
+    }).respond(200, 'found');
+
+    var response = client.sendHeader(undefined);
+    expect(response).toBeDefined();
+
+    var success = false;
+
+    response.success(function (data) {
+      success = true;
+      expect(data).toBe('found');
+    });
+
+    $httpBackend.flush();
+    expect(success).toBe(true);
+  });
+
+  it('Test sendHeader with null parameter', function () {
+    $httpBackend.expectGET('/header', function (headers) {
+      return angular.isUndefined(headers.token);
+    }).respond(200, 'found');
+
+    var response = client.sendHeader(null);
+    expect(response).toBeDefined();
+
+    var success = false;
+
+    response.success(function (data) {
+      success = true;
+      expect(data).toBe('found');
+    });
+
+    $httpBackend.flush();
+    expect(success).toBe(true);
+  });
 });
