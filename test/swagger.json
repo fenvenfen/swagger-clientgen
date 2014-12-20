@@ -1,69 +1,75 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "title": "Swagger clientgen",
-        "version": "1.0.0"
+  "swagger": "2.0",
+  "info": {
+    "title": "Swagger clientgen",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/something": {
+      "get": {
+        "operationId": "getAllThings"
+      },
+      "post": {
+        "operationId": "createThing",
+        "parameters": [
+          {
+            "name": "thing",
+            "in": "body"
+          }
+        ]
+      }
     },
-    "paths": {
-        "/something": {
-            "get": {
-                "operationId": "getAllThings"
-            },
-            "post": {
-                "operationId": "createThing",
-                "parameters": [
-                    {
-                        "name": "thing",
-                        "in": "body"
-                    }
-                ]
-            }
-        },
-        "/something/{id}": {
-            "delete": {
-                "operationId": "deleteThing",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path"
-                    }
-                ]
-            },
-            "put": {
-                "operationId": "updateThing",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path"
-                    },
-                    {
-                        "name": "thing",
-                        "in": "body"
-                    }
-                ]
-            }
-        },
-        "/query": {
-            "get": {
-                "operationId": "searchQuery",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query"
-                    }
-                ]
-            }
-        },
-        "/header": {
-            "head": {
-                "operationId": "sendHeader",
-                "parameters": [
-                    {
-                        "name": "token",
-                        "in": "header"
-                    }
-                ]
-            }
-        }
+    "/something/{id}": {
+      "delete": {
+        "operationId": "deleteThing",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "updateThing",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "name": "thing",
+            "in": "body"
+          }
+        ]
+      }
+    },
+    "/query": {
+      "get": {
+        "operationId": "searchQuery",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query"
+          }
+        ]
+      }
+    },
+    "/header": {
+      "head": {
+        "operationId": "sendHeader",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header"
+          }
+        ]
+      },
+      "options": {
+        "operationId": "optionsHeader"
+      },
+      "patch": {
+        "operationId": "patchHeader"
+      }
     }
+  }
 }

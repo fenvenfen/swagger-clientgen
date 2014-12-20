@@ -154,6 +154,14 @@ module Swagger {
       }));
     }
 
+    public optionsHeader(): ng.IHttpPromise<any> {
+      return this.$http(this.createRequestConfig('/header', 'OPTIONS'));
+    }
+
+    public patchHeader(): ng.IHttpPromise<any> {
+      return this.$http(this.createRequestConfig('/header', 'PATCH'));
+    }
+
   }
 
   angular.module('swaggerclient', [])

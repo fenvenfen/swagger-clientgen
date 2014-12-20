@@ -220,4 +220,38 @@ describe('Test the client', function () {
     $httpBackend.flush();
     expect(success).toBe(true);
   });
+
+  it('Test optionsHeader', function () {
+    $httpBackend.expect('OPTIONS', '/header').respond(200, 'found');
+
+    var response = client.optionsHeader();
+    expect(response).toBeDefined();
+
+    var success = false;
+
+    response.success(function (data) {
+      success = true;
+      expect(data).toBe('found');
+    });
+
+    $httpBackend.flush();
+    expect(success).toBe(true);
+  });
+
+  it('Test patchHeader', function () {
+    $httpBackend.expectPATCH('/header').respond(200, 'found');
+
+    var response = client.patchHeader();
+    expect(response).toBeDefined();
+
+    var success = false;
+
+    response.success(function (data) {
+      success = true;
+      expect(data).toBe('found');
+    });
+
+    $httpBackend.flush();
+    expect(success).toBe(true);
+  });
 });
