@@ -165,7 +165,7 @@ describe('Test the client', function () {
   });
 
   it('Test sendHeader with defined parameter', function () {
-    $httpBackend.expectGET('/header', function (headers) {
+    $httpBackend.expectHEAD('/header', function (headers) {
       return headers.token === 'abc';
     }).respond(200, 'found');
 
@@ -184,7 +184,7 @@ describe('Test the client', function () {
   });
 
   it('Test sendHeader with undefined parameter', function () {
-    $httpBackend.expectGET('/header', function (headers) {
+    $httpBackend.expectHEAD('/header', function (headers) {
       return angular.isUndefined(headers.token);
     }).respond(200, 'found');
 
@@ -203,7 +203,7 @@ describe('Test the client', function () {
   });
 
   it('Test sendHeader with null parameter', function () {
-    $httpBackend.expectGET('/header', function (headers) {
+    $httpBackend.expectHEAD('/header', function (headers) {
       return angular.isUndefined(headers.token);
     }).respond(200, 'found');
 

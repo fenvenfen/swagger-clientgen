@@ -55,7 +55,7 @@
             }
         },
         "/header": {
-            "get": {
+            "head": {
                 "operationId": "sendHeader",
                 "parameters": [
                     {

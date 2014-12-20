@@ -146,7 +146,7 @@ module Swagger {
     }
 
     public sendHeader(token: any): ng.IHttpPromise<any> {
-      return this.$http(this.createRequestConfig('/header', 'GET', {
+      return this.$http(this.createRequestConfig('/header', 'HEAD', {
         'token': {
           value: token,
           type: 'header'
