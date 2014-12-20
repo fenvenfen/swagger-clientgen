@@ -40,6 +40,14 @@ var DefaultCodeGenerator = (function () {
             return 'any';
         }
     };
+    DefaultCodeGenerator.prototype.findScheme = function (api) {
+        if (api.schemes && api.schemes.indexOf('https') !== -1) {
+            return 'https';
+        }
+        if (api.schemes && api.schemes.indexOf('http') !== -1) {
+            return 'http';
+        }
+    };
     DefaultCodeGenerator.prototype.generateMethod = function (path, pathConfig, operation, operationConfig) {
         var methodConfig = {
             name: operationConfig.operationId,
@@ -68,6 +76,7 @@ var DefaultCodeGenerator = (function () {
         return this.render('class.mst', {
             apiConfig: apiConfig,
             api: api,
+            scheme: this.findScheme(api),
             methodContent: methodContent
         });
     };

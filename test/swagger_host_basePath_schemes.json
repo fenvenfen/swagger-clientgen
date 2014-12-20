@@ -1,0 +1,20 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Swagger clientgen",
+    "version": "1.0.0"
+  },
+  "host": "somehost",
+  "basePath": "/base",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/something": {
+      "get": {
+        "operationId": "getAllThings"
+      }
+    }
+  }
+}

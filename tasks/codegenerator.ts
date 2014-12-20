@@ -4,12 +4,12 @@
 ///<reference path="../test/types/swagger/swagger.d.ts" />
 'use strict';
 
-var Mustache:MustacheStatic = require('mustache');
+var Mustache: MustacheStatic = require('mustache');
 
 export interface CodeGenerator {
-  generateMethod(path:string, pathConfig:swagger.PathItemObject, operation:string, operationConfig:swagger.OperationObject): string;
-  generateClass(apiConfig:any, api:SwaggerObject, methodContent:string): string;
-  generateModule(apiConfig:any, classContent:string): string;
+  generateMethod(path: string, pathConfig: swagger.PathItemObject, operation: string, operationConfig: swagger.OperationObject): string;
+  generateClass(apiConfig: any, api: SwaggerObject, methodContent: string): string;
+  generateModule(apiConfig: any, classContent: string): string;
 }
 
 interface MethodConfig {
@@ -29,18 +29,18 @@ interface MethodParameter {
 }
 
 class DefaultCodeGenerator implements CodeGenerator {
-  private language:string;
-  private framework:string;
-  private grunt:IGrunt;
+  private language: string;
+  private framework: string;
+  private grunt: IGrunt;
 
-  constructor(grunt:IGrunt, language:string, framework:string) {
+  constructor(grunt: IGrunt, language: string, framework: string) {
     this.language = language;
     this.framework = framework;
     this.grunt = grunt;
   }
 
-  private findTemplateFile(templateFile:string):string {
-    var templatePath:string;
+  private findTemplateFile(templateFile: string): string {
+    var templatePath: string;
 
     //If a framework is set try to load the file for the language and framework
     if (this.framework !== 'none') {
@@ -62,7 +62,7 @@ class DefaultCodeGenerator implements CodeGenerator {
     this.grunt.log.error('Template file ' + templatePath + ' not found');
   }
 
-  render(templateFile:string, data:any):string {
+  render(templateFile: string, data: any): string {
     var templatePath = this.findTemplateFile(templateFile);
 
     if (!templatePath) {
@@ -72,15 +72,25 @@ class DefaultCodeGenerator implements CodeGenerator {
     return Mustache.render(this.grunt.file.read(templatePath), data);
   }
 
-  findReturnType():string {
+  findReturnType(): string {
     if (this.language === 'TypeScript') {
       //Return any for now. Need to parse the operations response objects and generate interfaces from them
       return 'any';
     }
   }
 
-  generateMethod(path:string, pathConfig:swagger.PathItemObject, operation:string, operationConfig:swagger.OperationObject) {
-    var methodConfig:MethodConfig = {
+  private findScheme(api: SwaggerObject): string {
+    if (api.schemes && api.schemes.indexOf('https') !== -1) {
+      return 'https';
+    }
+
+    if (api.schemes && api.schemes.indexOf('http') !== -1) {
+      return 'http';
+    }
+  }
+
+  generateMethod(path: string, pathConfig: swagger.PathItemObject, operation: string, operationConfig: swagger.OperationObject) {
+    var methodConfig: MethodConfig = {
       name: operationConfig.operationId,
       returnType: this.findReturnType(),
       httpMethod: operation.toUpperCase(),
@@ -108,15 +118,17 @@ class DefaultCodeGenerator implements CodeGenerator {
     });
   }
 
-  generateClass(apiConfig:any, api:SwaggerObject, methodContent:string) {
+  generateClass(apiConfig: any, api: SwaggerObject, methodContent: string) {
+
     return this.render('class.mst', {
       apiConfig: apiConfig,
       api: api,
+      scheme: this.findScheme(api),
       methodContent: methodContent
     });
   }
 
-  generateModule(apiConfig:any, classContent:string) {
+  generateModule(apiConfig: any, classContent: string) {
     return this.render('module.mst', {
       apiConfig: apiConfig,
       classContent: classContent
@@ -124,6 +136,6 @@ class DefaultCodeGenerator implements CodeGenerator {
   }
 }
 
-export function create(grunt:IGrunt, language:string, framework:string):CodeGenerator {
+export function create(grunt: IGrunt, language: string, framework: string): CodeGenerator {
   return new DefaultCodeGenerator(grunt, language, framework);
 }

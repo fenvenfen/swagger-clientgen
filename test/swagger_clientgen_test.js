@@ -35,6 +35,15 @@ exports.swagger_clientgen = {
     test.equal(actual, expected, 'Content of files not equals');
 
     test.done();
+  },
+  typescript_angular_host_basepath_scheme: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/actual/swagger_typescript_angular_host_basepath_schemes.ts');
+    var expected = grunt.file.read('test/expected/swagger_typescript_angular_host_basepath_schemes.ts');
+    test.equal(actual, expected, 'Content of files not equals');
+
+    test.done();
   }
   /*,
   custom_options: function(test) {

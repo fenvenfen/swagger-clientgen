@@ -2,15 +2,39 @@ export class {{{apiConfig.className}}} {
   public title = '{{{api.info.title}}}';
   public version = '{{{api.info.version}}}';
   private $http: ng.IHttpService;
+  private host: string{{#api.host}} = "{{{api.host}}}"{{/api.host}};
+  private basePath: string{{#api.basePath}} = "{{{api.basePath}}}"{{/api.basePath}};
+  private scheme: string{{#scheme}} = "{{{scheme}}}"{{/scheme}};
 
   constructor($http: ng.IHttpService){
     this.$http = $http;
   }
 
+  private buildUrl(path: string): string {
+    var url: string = '';
+
+    if (this.host) {
+      if (!this.scheme) {
+        url = 'https://';
+      }
+      else {
+        url = this.scheme + '://';
+      }
+
+      url += this.host;
+    }
+
+    if (this.basePath) {
+      url += this.basePath;
+    }
+
+    return url + path;
+  }
+
   private createRequestConfig(path: string, method: string, parameters?: any): ng.IRequestConfig {
     var config: ng.IRequestConfig = {
       method: method,
-      url: path
+      url: this.buildUrl(path)
     };
 
     if (parameters) {
@@ -60,6 +84,18 @@ export class {{{apiConfig.className}}} {
     }
 
     return config;
+  }
+
+  public setHost(host: string) {
+    this.host = host;
+  }
+
+  public setScheme(scheme: string) {
+    this.scheme = scheme;
+  }
+
+  public setBasePath(basePath: string) {
+    this.basePath = basePath;
   }
   {{#methodContent}}
 

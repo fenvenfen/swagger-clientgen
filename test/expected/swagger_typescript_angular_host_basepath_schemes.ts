@@ -5,9 +5,9 @@ module Swagger {
     public title = 'Swagger clientgen';
     public version = '1.0.0';
     private $http: ng.IHttpService;
-    private host: string;
-    private basePath: string;
-    private scheme: string;
+    private host: string = "somehost";
+    private basePath: string = "/base";
+    private scheme: string = "https";
 
     constructor($http: ng.IHttpService) {
       this.$http = $http;
@@ -103,55 +103,6 @@ module Swagger {
 
     public getAllThings(): ng.IHttpPromise<any> {
       return this.$http(this.createRequestConfig('/something', 'GET'));
-    }
-
-    public createThing(thing: any): ng.IHttpPromise<any> {
-      return this.$http(this.createRequestConfig('/something', 'POST', {
-        'thing': {
-          value: thing,
-          type: 'body'
-        }
-      }));
-    }
-
-    public deleteThing(id: any): ng.IHttpPromise<any> {
-      return this.$http(this.createRequestConfig('/something/{id}', 'DELETE', {
-        'id': {
-          value: id,
-          type: 'path'
-        }
-      }));
-    }
-
-    public updateThing(id: any, thing: any): ng.IHttpPromise<any> {
-      return this.$http(this.createRequestConfig('/something/{id}', 'PUT', {
-        'id': {
-          value: id,
-          type: 'path'
-        },
-        'thing': {
-          value: thing,
-          type: 'body'
-        }
-      }));
-    }
-
-    public searchQuery(q: any): ng.IHttpPromise<any> {
-      return this.$http(this.createRequestConfig('/query', 'GET', {
-        'q': {
-          value: q,
-          type: 'query'
-        }
-      }));
-    }
-
-    public sendHeader(token: any): ng.IHttpPromise<any> {
-      return this.$http(this.createRequestConfig('/header', 'GET', {
-        'token': {
-          value: token,
-          type: 'header'
-        }
-      }));
     }
 
   }
