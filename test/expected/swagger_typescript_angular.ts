@@ -101,7 +101,7 @@ module Swagger {
             this.basePath = basePath;
         }
 
-        public getAllThings(): ng.IHttpPromise<any> {
+        public getAllThings(): ng.IHttpPromise<Array<GetAllThingsResponse>> {
             return this.$http(this.createRequestConfig('/something', 'GET'));
         }
 

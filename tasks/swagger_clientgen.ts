@@ -96,7 +96,7 @@ module.exports = function (grunt: IGrunt) {
      * @returns {string} content with line endings for the current platform
      */
     function updateLineEndings(content: string): string {
-        if(!content) {
+        if (!content) {
             return;
         }
 

@@ -21,6 +21,7 @@ var DefaultCodeGenerator = (function () {
         this.framework = framework;
         this.grunt = grunt;
     }
+
     DefaultCodeGenerator.prototype.findTemplateFile = function (templateFile) {
         var templatePath;
         //If a framework is set try to load the file for the language and framework
@@ -45,10 +46,38 @@ var DefaultCodeGenerator = (function () {
         }
         return Mustache.render(this.grunt.file.read(templatePath), data);
     };
-    DefaultCodeGenerator.prototype.findReturnType = function () {
+    DefaultCodeGenerator.prototype.findResponseDefinition = function (operation) {
+        if (!operation.responses) {
+            return;
+        }
+        if (operation.responses["201"]) {
+            return operation.responses["201"];
+        }
+        else if (operation.responses["200"]) {
+            return operation.responses["200"];
+        }
+        else {
+            return operation.responses.default;
+        }
+    };
+    DefaultCodeGenerator.prototype.findReturnType = function (operation) {
         if (this.language === 'TypeScript') {
-            //Return any for now. Need to parse the operations response objects and generate interfaces from them
-            return 'any';
+            var responseDefinition = this.findResponseDefinition(operation);
+            //If not schema is defined return any
+            if (!responseDefinition || !responseDefinition.schema) {
+                return 'any';
+            }
+            var returnType = this.capitalize(operation.operationId) + 'Response';
+            //If it is a object we must build the name
+            if (responseDefinition.schema.type === 'object') {
+                return returnType;
+            }
+            else if (responseDefinition.schema.type === 'array') {
+                return 'Array<' + returnType + '>';
+            }
+            else {
+                return this.typeMappings[responseDefinition.schema.type];
+            }
         }
     };
     DefaultCodeGenerator.prototype.findScheme = function (api) {
@@ -81,7 +110,7 @@ var DefaultCodeGenerator = (function () {
     DefaultCodeGenerator.prototype.generateMethod = function (path, pathConfig, operation, operationConfig) {
         var methodConfig = {
             name: operationConfig.operationId,
-            returnType: this.findReturnType(),
+            returnType: this.findReturnType(operationConfig),
             httpMethod: operation.toUpperCase(),
             path: path
         };
@@ -114,34 +143,39 @@ var DefaultCodeGenerator = (function () {
         if (!operation.responses) {
             return '';
         }
-        var responseDefinition;
-        if (operation.responses["201"]) {
-            responseDefinition = operation.responses["201"];
-        }
-        else if (operation.responses["200"]) {
-            responseDefinition = operation.responses["200"];
-        }
-        else {
-            responseDefinition = operation.responses.default;
-        }
+
+        var responseDefinition = this.findResponseDefinition(operation);
+
         if (!responseDefinition) {
             throw 'Only responses for status 200, 201 and default responses are supported yet';
         }
+
         if (!responseDefinition.schema) {
             return '';
         }
+
         var interfaceName = this.capitalize(operation.operationId) + 'Response';
+
         var interfaceProps;
+
         if (responseDefinition.schema.type === 'array') {
-            interfaceProps = this.extractProperties(responseDefinition.schema.items);
+            if (responseDefinition.schema.items.type === 'object') {
+                interfaceProps = this.extractProperties(responseDefinition.schema.items);
+            }
         }
-        else {
+        else if (responseDefinition.schema.type === 'object') {
             interfaceProps = this.extractProperties(responseDefinition.schema);
         }
-        return this.render('interface.mst', {
-            interfaceName: interfaceName,
-            properties: interfaceProps
-        });
+
+        if (interfaceProps && interfaceProps.length > 0) {
+            return this.render('interface.mst', {
+                interfaceName: interfaceName,
+                properties: interfaceProps
+            });
+        }
+        else {
+            return '';
+        }
     };
     DefaultCodeGenerator.prototype.generateModule = function (apiConfig, classContent, interfacesContent) {
         return this.render('module.mst', {

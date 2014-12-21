@@ -85,10 +85,43 @@ class DefaultCodeGenerator implements CodeGenerator {
         return Mustache.render(this.grunt.file.read(templatePath), data);
     }
 
-    private findReturnType(): string {
+    private findResponseDefinition(operation: swagger.OperationObject): swagger.ResponseObject {
+        if (!operation.responses) {
+            return;
+        }
+
+        if (operation.responses["201"]) {
+            return operation.responses["201"];
+        }
+        else if (operation.responses["200"]) {
+            return operation.responses["200"];
+        }
+        else {
+            return operation.responses.default;
+        }
+    }
+
+    private findReturnType(operation: swagger.OperationObject): string {
         if (this.language === 'TypeScript') {
-            //Return any for now. Need to parse the operations response objects and generate interfaces from them
-            return 'any';
+            var responseDefinition = this.findResponseDefinition(operation);
+
+            //If not schema is defined return any
+            if (!responseDefinition || !responseDefinition.schema) {
+                return 'any';
+            }
+
+            var returnType = this.capitalize(operation.operationId) + 'Response';
+
+            //If it is a object we must build the name
+            if (responseDefinition.schema.type === 'object') {
+                return returnType;
+            }
+            else if (responseDefinition.schema.type === 'array') {
+                return 'Array<' + returnType + '>';
+            }
+            else {
+                return this.typeMappings[responseDefinition.schema.type];
+            }
         }
     }
 
@@ -130,7 +163,7 @@ class DefaultCodeGenerator implements CodeGenerator {
     generateMethod(path: string, pathConfig: swagger.PathItemObject, operation: string, operationConfig: swagger.OperationObject) {
         var methodConfig: MethodConfig = {
             name: operationConfig.operationId,
-            returnType: this.findReturnType(),
+            returnType: this.findReturnType(operationConfig),
             httpMethod: operation.toUpperCase(),
             path: path
         };
@@ -171,17 +204,7 @@ class DefaultCodeGenerator implements CodeGenerator {
             return '';
         }
 
-        var responseDefinition: swagger.ResponseObject;
-
-        if (operation.responses["201"]) {
-            responseDefinition = operation.responses["201"];
-        }
-        else if (operation.responses["200"]) {
-            responseDefinition = operation.responses["200"];
-        }
-        else {
-            responseDefinition = operation.responses.default;
-        }
+        var responseDefinition = this.findResponseDefinition(operation);
 
         if (!responseDefinition) {
             throw 'Only responses for status 200, 201 and default responses are supported yet';
@@ -195,16 +218,23 @@ class DefaultCodeGenerator implements CodeGenerator {
         var interfaceProps: Array<any>;
 
         if (responseDefinition.schema.type === 'array') {
-            interfaceProps = this.extractProperties(responseDefinition.schema.items)
+            if (responseDefinition.schema.items.type === 'object') {
+                interfaceProps = this.extractProperties(responseDefinition.schema.items)
+            }
         }
-        else {
+        else if (responseDefinition.schema.type === 'object') {
             interfaceProps = this.extractProperties(responseDefinition.schema);
         }
 
-        return this.render('interface.mst', {
-            interfaceName: interfaceName,
-            properties: interfaceProps
-        });
+        if (interfaceProps && interfaceProps.length > 0) {
+            return this.render('interface.mst', {
+                interfaceName: interfaceName,
+                properties: interfaceProps
+            });
+        }
+        else {
+            return '';
+        }
     }
 
     generateModule(apiConfig: any, classContent: string, interfacesContent: string) {
