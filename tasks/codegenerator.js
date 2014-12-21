@@ -6,6 +6,17 @@
 var Mustache = require('mustache');
 var DefaultCodeGenerator = (function () {
     function DefaultCodeGenerator(grunt, language, framework) {
+        this.typeMappings = {
+            "integer": "number",
+            "long": "number",
+            "float": "number",
+            "double": "number",
+            "byte": "string",
+            "string": "string",
+            "boolean": "boolean",
+            "date": "Date",
+            "dateTime": "Date"
+        };
         this.language = language;
         this.framework = framework;
         this.grunt = grunt;
@@ -48,6 +59,25 @@ var DefaultCodeGenerator = (function () {
             return 'http';
         }
     };
+    DefaultCodeGenerator.prototype.capitalize = function (s) {
+        if (s.length === 1) {
+            return s.toUpperCase();
+        }
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
+    };
+    DefaultCodeGenerator.prototype.extractProperties = function (schema) {
+        if (!schema.properties) {
+            return;
+        }
+        var props = [];
+        for (var property in schema.properties) {
+            props.push({
+                name: property,
+                type: this.typeMappings[schema.properties[property].type]
+            });
+        }
+        return props;
+    };
     DefaultCodeGenerator.prototype.generateMethod = function (path, pathConfig, operation, operationConfig) {
         var methodConfig = {
             name: operationConfig.operationId,
@@ -80,10 +110,44 @@ var DefaultCodeGenerator = (function () {
             methodContent: methodContent
         });
     };
-    DefaultCodeGenerator.prototype.generateModule = function (apiConfig, classContent) {
+    DefaultCodeGenerator.prototype.generateResponseInterfaces = function (operation) {
+        if (!operation.responses) {
+            return '';
+        }
+        var responseDefinition;
+        if (operation.responses["201"]) {
+            responseDefinition = operation.responses["201"];
+        }
+        else if (operation.responses["200"]) {
+            responseDefinition = operation.responses["200"];
+        }
+        else {
+            responseDefinition = operation.responses.default;
+        }
+        if (!responseDefinition) {
+            throw 'Only responses for status 200, 201 and default responses are supported yet';
+        }
+        if (!responseDefinition.schema) {
+            return '';
+        }
+        var interfaceName = this.capitalize(operation.operationId) + 'Response';
+        var interfaceProps;
+        if (responseDefinition.schema.type === 'array') {
+            interfaceProps = this.extractProperties(responseDefinition.schema.items);
+        }
+        else {
+            interfaceProps = this.extractProperties(responseDefinition.schema);
+        }
+        return this.render('interface.mst', {
+            interfaceName: interfaceName,
+            properties: interfaceProps
+        });
+    };
+    DefaultCodeGenerator.prototype.generateModule = function (apiConfig, classContent, interfacesContent) {
         return this.render('module.mst', {
             apiConfig: apiConfig,
-            classContent: classContent
+            classContent: classContent,
+            interfacesContent: interfacesContent
         });
     };
     return DefaultCodeGenerator;

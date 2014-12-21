@@ -7,7 +7,25 @@
   "paths": {
     "/something": {
       "get": {
-        "operationId": "getAllThings"
+        "operationId": "getAllThings",
+        "responses": {
+          "200": {
+            "description": "A list of all available things",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "post": {
         "operationId": "createThing",

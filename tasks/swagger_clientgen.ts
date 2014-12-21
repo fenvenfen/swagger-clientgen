@@ -62,7 +62,7 @@ module.exports = function (grunt: IGrunt) {
         var generated = '';
 
         if (appendNewlines) {
-            generated += '\n';
+            generated += grunt.util.linefeed + grunt.util.linefeed;
         }
 
         generated += codeGenerator.generateMethod(path, pathConfig, operation, operationConfig);
@@ -70,8 +70,40 @@ module.exports = function (grunt: IGrunt) {
         return generated;
     }
 
-    var assert = new Assert(grunt);
+    function handleResponseInterfaces(operation: swagger.OperationObject, appendNewlines: boolean, codegenerator: codeGen.CodeGenerator): string {
+        if (!operation) {
+            return '';
+        }
 
+        var generated = codegenerator.generateResponseInterfaces(operation);
+
+        if (generated.length === 0) {
+            return '';
+        }
+
+        if (appendNewlines) {
+            return grunt.util.linefeed + generated;
+        }
+        else {
+            return generated;
+        }
+    }
+
+    /**
+     * Replace all line endings inside the content with the platform specific ones.
+     *
+     * @param content string to update
+     * @returns {string} content with line endings for the current platform
+     */
+    function updateLineEndings(content: string): string {
+        if(!content) {
+            return;
+        }
+
+        return content.replace(/\r\n|\n|\r/g, grunt.util.linefeed);
+    }
+
+    var assert = new Assert(grunt);
 
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
@@ -101,10 +133,12 @@ module.exports = function (grunt: IGrunt) {
             var codeGenerator = codeGen.create(grunt, options.language, options.framework);
 
             var generatedMethods: string,
+                generatedInterfaces: string,
                 pathConfig: swagger.PathItemObject;
 
             if (api.paths) {
                 generatedMethods = '';
+                generatedInterfaces = '';
 
                 for (var path in api.paths) {
                     pathConfig = api.paths[path];
@@ -116,11 +150,22 @@ module.exports = function (grunt: IGrunt) {
                     generatedMethods += handleOperation(pathConfig.patch, 'patch', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
                     generatedMethods += handleOperation(pathConfig.post, 'post', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
                     generatedMethods += handleOperation(pathConfig.put, 'put', path, pathConfig, codeGenerator, generatedMethods.length >= 1);
+
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.get, generatedInterfaces.length >= 1, codeGenerator);
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.delete, generatedInterfaces.length >= 1, codeGenerator);
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.head, generatedInterfaces.length >= 1, codeGenerator);
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.options, generatedInterfaces.length >= 1, codeGenerator);
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.patch, generatedInterfaces.length >= 1, codeGenerator);
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.post, generatedInterfaces.length >= 1, codeGenerator);
+                    generatedInterfaces += handleResponseInterfaces(pathConfig.put, generatedInterfaces.length >= 1, codeGenerator);
                 }
             }
 
             var generatedClass = codeGenerator.generateClass(apiConfig, api, generatedMethods);
-            var generatedModule = codeGenerator.generateModule(apiConfig, generatedClass);
+            var generatedModule = codeGenerator.generateModule(apiConfig, generatedClass, generatedInterfaces);
+
+            //Update all line endings to use the platform specific ones.
+            generatedModule = updateLineEndings(generatedModule);
 
             grunt.file.write(apiConfig.target, generatedModule);
 

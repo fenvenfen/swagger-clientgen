@@ -4,6 +4,11 @@ module {{{apiConfig.module}}} {
 
   {{{classContent}}}
 {{/classContent}}
+{{#interfacesContent}}
+
+  {{{interfacesContent}}}
+{{/interfacesContent}}
+
   angular.module('{{{apiConfig.angularModuleName}}}', [])
     .factory('{{{apiConfig.angularServiceName}}}', ['$http',
       function($http: ng.IHttpService) {
